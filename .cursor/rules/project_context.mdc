@@ -1,0 +1,39 @@
+---
+alwaysApply: true
+---
+
+# PROYECTO: Vali - Agente de logística conversacional (Whatsapp)
+
+## Stack Tecnológico
+
+### 1. Lenguaje y Framework principal
+- **Python 3.x**
+- **FastAPI** (framework web para microservicios y APIs REST/gRPC)
+- **Uvicorn**
+
+### 2. Base de datos y almacenamiento
+- **Google Firestore** (NoSQL, colecciones por microservicio: clientes, productos, pedidos, negocios, conversaciones, etc.)
+- **Vector DB (para embeddings):** Pinecone
+- **Blob Storage (media: imágenes, audios, etc.):** Google Cloud Storage (GCS)
+
+### 3. Event Bus / Mensajería
+- **Google Pub/Sub**
+
+### 4. Agente y capa de inteligencia
+- **LLM (Large Language Model)** (interfaz conversacional principal)
+- **MCP (Model Context Protocol)** para exponer herramientas al LLM  
+  - MCP adapter como router entre LLM ↔ microservicios
+
+### 5. Integraciones externas
+- **API WhatsApp (Meta WhatsApp Business API)** para comunicación con clientes
+
+### 6. Infraestructura y despliegue
+- **Docker** (contenedorización de microservicios)
+- **Kubernetes (K8s)** (orquestación, escalabilidad, alta disponibilidad)
+- **Helm** (deployment manifests)
+- **CI/CD Pipeline:** GitHub Actions
+
+### 7. Seguridad
+- **JWT firmado** (autenticación entre microservicios)
+- **Secret Manager** (gestión de credenciales y claves)
+- **API Gateway** (validación, rate-limits, control de acceso)
