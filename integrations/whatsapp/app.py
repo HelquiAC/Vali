@@ -1,9 +1,10 @@
 from fastapi import FastAPI, Request, Response
 import uvicorn
 import os
+from models.whatsapp_message_received import WhatsappPayload
 from dotenv import load_dotenv  # PRUEBA: Carga las variables de entorno desde el archivo .env
 
-load_dotenv()   # PRUEBA: Carga las variables de entorno desde el archivo .env
+load_dotenv('config/.env')   # PRUEBA: Carga las variables de entorno desde el archivo .env
 
 app = FastAPI()
 
@@ -19,8 +20,8 @@ async def validate_webhook(request: Request):
 
 @app.post("/webhook/whatsapp/vali")
 async def handle_webhook(request: Request):
-    body = await request.json()
-    print('MENSAJE ENTRANTE\n', body)
+    message_user = WhatsappPayload(**(await request.json()))
+    print('MENSAJE ENTRANTE\n', message_user.entry[0].changes[0].value.messages[0].text.body) # Prueba para ver resultado
     return Response(status_code=200)
 
 if __name__ == '__main__':
