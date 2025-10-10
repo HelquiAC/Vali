@@ -1,18 +1,27 @@
+import asyncio
 from fastapi import Request, Response
 import os
-from models.whatsapp_message_received import WhatsappPayload
+from integrations.whatsapp.models.whatsapp_message_received import WhatsappPayload
+from integrations.whatsapp.clients.request_customers_microservice import validate_id_user
+from integrations.whatsapp.clients.request_conversations_microservice  import send_message_whatsapp_to_conversations_microservice
+from dotenv import load_dotenv  # PRUEBA: Carga las variables de entorno desde el archivo .env
 
 
-async def service_validate_webhook(request: Request):
-    hub_mode = request.query_params.get("hub.mode")
-    hub_challenge = request.query_params.get('hub.challenge')
-    hub_verify_token = request.query_params.get('hub.verify_token')
-    VERIFY_TOKEN_WHATSAPP = os.getenv('VERIFY_TOKEN_WHATSAPP')
-    if hub_verify_token == VERIFY_TOKEN_WHATSAPP and hub_mode == "subscribe":
-        return int(hub_challenge)
+load_dotenv('integrations/whatsapp/config/.env')   # PRUEBA: Carga las variables de entorno desde el archivo .env
+
+async def service_validate_webhook(request: Request): 
+    if request.query_params.get('hub.verify_token') == os.getenv('VERIFY_TOKEN_WHATSAPP') and request.query_params.get("hub.mode") == "subscribe":
+        return int(request.query_params.get('hub.challenge'))
     return Response(status_code=403)
 
 async def service_handle_webhook(request: Request):
     message_user = WhatsappPayload(**(await request.json()))
-    print('MENSAJE ENTRANTE\n', message_user.entry[0].changes[0].value.messages[0].text.body) # Prueba para ver resultado
+    asyncio.create_task(process_webhook_background(message_user))    
     return Response(status_code=200)
+
+async def process_webhook_background(message_user: WhatsappPayload):
+    id_user = await validate_id_user(message_user.entry[0].changes[0].value.contacts[0].wa_id)
+    if id_user:
+        await send_message_whatsapp_to_conversations_microservice(message_user)      
+    else:
+        pass # no se puede concretar la operacion
