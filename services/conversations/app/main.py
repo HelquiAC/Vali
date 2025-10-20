@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 import uvicorn
-from routes.conversations_routes import router
+from services.conversations.routes.conversations_routes import router
 
 
 app = FastAPI()
